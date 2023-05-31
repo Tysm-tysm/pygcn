@@ -24,7 +24,7 @@ parser.add_argument('--epochs', type=int, default=200,
 parser.add_argument('--lr', type=float, default=0.01,
                     help='Initial learning rate.')
 parser.add_argument('--weight_decay', type=float, default=5e-4,
-                    help='Weight decay (L2 loss on parameters).')
+                    help='Weight decay (L2 loss on parameters).')  # 是指在损失函数中添加一个L2正则化项，这个正则化项是所有权重的平方和乘以个系数。
 parser.add_argument('--hidden', type=int, default=16,
                     help='Number of hidden units.')
 parser.add_argument('--dropout', type=float, default=0.5,
@@ -34,7 +34,7 @@ args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
 np.random.seed(args.seed)
-torch.manual_seed(args.seed)
+torch.manual_seed(args.seed)  # 手动设置种子一般可用于固定随机初始化的权重值，这样就可以让每次重新从头训练网络时的权重的初始值虽然是随机生成的但却是固定的。
 if args.cuda:
     torch.cuda.manual_seed(args.seed)
 
@@ -62,7 +62,7 @@ if args.cuda:
 def train(epoch):
     t = time.time()
     model.train()
-    optimizer.zero_grad()
+    optimizer.zero_grad()  # 将所有可训练的参数的梯度设置为0
     output = model(features, adj)
     loss_train = F.nll_loss(output[idx_train], labels[idx_train])
     acc_train = accuracy(output[idx_train], labels[idx_train])
