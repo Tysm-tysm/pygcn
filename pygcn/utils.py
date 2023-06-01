@@ -4,9 +4,17 @@ import torch
 
 
 def encode_onehot(labels):
+    # set() 函数创建一个无序不重复元素集
     classes = set(labels)
+    '''enumerate()函数生成序列，带有索引i和值c。
+        这一句将string类型的label变为int类型的label，建立映射关系
+        np.identity(len(classes)) 为创建一个classes的单位矩阵
+        创建一个字典，索引为 label， 值为独热码向量（就是之前生成的矩阵中的某一行）'''
     classes_dict = {c: np.identity(len(classes))[i, :] for i, c in
                     enumerate(classes)}
+    # 为所有的标签生成相应的独热码
+    # map() 会根据提供的函数对指定序列做映射。
+    # 这一句将string类型的label替换为int类型的label
     labels_onehot = np.array(list(map(classes_dict.get, labels)),
                              dtype=np.int32)
     return labels_onehot
@@ -62,17 +70,14 @@ def load_data(path="../data/cora/", dataset="cora"):
 
     return adj, features, labels, idx_train, idx_val, idx_test
 
-    '''
-    首先对每一行求和得到rowsum；
-    求倒数得到r_inv；
-    如果某一行全为0，则r_inv算出来会等于无穷大，将这些行的r_inv置为0；
-    构建对角元素为r_inv的对角矩阵；
-    用对角矩阵与原始矩阵的点积起到标准化的作用，原始矩阵中每一行元素都会与对应的r_inv相乘。
-    '''
-
 
 def normalize(mx):
-    """Row-normalize sparse matrix"""
+    """Row-normalize sparse matrix
+        首先对每一行求和得到rowsum；
+        求倒数得到r_inv；
+        如果某一行全为0，则r_inv算出来会等于无穷大，将这些行的r_inv置为0；
+        构建对角元素为r_inv的对角矩阵；
+        用对角矩阵与原始矩阵的点积起到标准化的作用，原始矩阵中每一行元素都会与对应的r_inv相乘。"""
     rowsum = np.array(mx.sum(1))
     r_inv = np.power(rowsum, -1).flatten()
     r_inv[np.isinf(r_inv)] = 0.

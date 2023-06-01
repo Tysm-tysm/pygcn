@@ -61,13 +61,13 @@ if args.cuda:
 
 def train(epoch):
     t = time.time()
-    model.train()
+    model.train()  # 开启训练模式，让 dropout，bn 等生效
     optimizer.zero_grad()  # 将所有可训练的参数的梯度设置为0
-    output = model(features, adj)
-    loss_train = F.nll_loss(output[idx_train], labels[idx_train])
+    output = model(features, adj)  # 前向传播，pytorch把forward写到了__call__，所以不用显式也会自动调用
+    loss_train = F.nll_loss(output[idx_train], labels[idx_train])  # 交叉熵计算分类损失
     acc_train = accuracy(output[idx_train], labels[idx_train])
-    loss_train.backward()
-    optimizer.step()
+    loss_train.backward()  # 反向传播计算梯度
+    optimizer.step()  # 沿着梯度反方向更新权重
 
     if not args.fastmode:
         # Evaluate validation set performance separately,
@@ -86,7 +86,7 @@ def train(epoch):
 
 
 def test():
-    model.eval()
+    model.eval()  # 不启用 Batch Normalization 和 Dropout
     output = model(features, adj)
     loss_test = F.nll_loss(output[idx_test], labels[idx_test])
     acc_test = accuracy(output[idx_test], labels[idx_test])
