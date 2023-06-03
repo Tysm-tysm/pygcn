@@ -15,7 +15,9 @@ class GraphConvolution(Module):
         super(GraphConvolution, self).__init__()
         self.in_features = in_features
         self.out_features = out_features
+        # 由于weight是可以训练的，因此使用parameter定义
         self.weight = Parameter(torch.FloatTensor(in_features, out_features))
+        # 由于bias是可以训练的，因此使用parameter定义
         if bias:
             self.bias = Parameter(torch.FloatTensor(out_features))
         else:
@@ -23,14 +25,17 @@ class GraphConvolution(Module):
         self.reset_parameters()
 
     def reset_parameters(self):
+        # size()函数主要是用来统计矩阵元素个数，或矩阵某一维上的元素个数的函数  size（1）为行
         stdv = 1. / math.sqrt(self.weight.size(1))
+        # uniform() 方法将随机生成下一个实数，它在 [x, y] 范围内
         self.weight.data.uniform_(-stdv, stdv)
         if self.bias is not None:
             self.bias.data.uniform_(-stdv, stdv)
 
     def forward(self, input, adj):
+        """A * X * W"""
         support = torch.mm(input, self.weight)
-        output = torch.spmm(adj, support)
+        output = torch.spmm(adj, support)  # spmm是稀疏矩阵相乘
         if self.bias is not None:
             return output + self.bias
         else:
